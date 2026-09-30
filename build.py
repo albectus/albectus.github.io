@@ -96,6 +96,7 @@ def main():
         "company_full_name": esc(c.get("full_name") or c["name"]),
         "inn_html": val_html(c.get("inn")),
         "ogrn_html": val_html(c.get("ogrn")),
+        "kpp_html": val_html(c.get("kpp")),
         "address_html": val_html(c.get("address")),
         "email_html": val_html(email, "mailto:" + email if email else None),
         "phone_html": val_html(phone, phone_link),
