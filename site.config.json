@@ -1,6 +1,6 @@
 {
   "_comment": "Реквизиты и настройки сайта. Пустое значение = не заполнено. После правки сайт пересобирается автоматически (GitHub Actions). Локально: python3 build.py",
-  "site_url": "https://rsvrsngffg-collab.github.io/albectus",
+  "site_url": "https://albectus.github.io",
   "custom_domain": "",
   "company": {
     "name": "ООО «Альбектус»",
