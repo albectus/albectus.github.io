@@ -1,7 +1,7 @@
 {
   "_comment": "Единственный файл с реквизитами и контактами. Пустое значение = поле ещё не заполнено (на сайте отображается «уточняется»). После правки запустите: python3 build.py",
 
-  "site_url": "https://albectus.github.io",
+  "site_url": "https://rsvrsngffg-collab.github.io/albectus",
   "custom_domain": "",
 
   "company": {
