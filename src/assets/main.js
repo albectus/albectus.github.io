@@ -15,12 +15,13 @@
     });
   }
 
-  // Форма обратной связи: данные не отправляются на сервер,
-  // а передаются в почтовую программу пользователя (mailto).
+  // Форма обратной связи: отправка через сервис Web3Forms (api.web3forms.com),
+  // который пересылает обращение на почту компании. Адрес почты на сайте не публикуется.
   var form = document.getElementById('contact-form');
   if (!form) return;
-  var email = form.getAttribute('data-email');
+  var key = form.getAttribute('data-key');
   var msg = document.getElementById('form-msg');
+  var btn = form.querySelector('button[type=submit]');
 
   function show(text, type) {
     msg.textContent = text;
@@ -29,28 +30,48 @@
 
   form.addEventListener('submit', function (e) {
     e.preventDefault();
-    if (!email) return;
+    if (!key) return;
     var name = form.elements.name.value.trim();
     var contact = form.elements.contact.value.trim();
     var text = form.elements.message.value.trim();
-    var consent = form.elements.consent.checked;
 
     if (!name || !contact || !text) {
       show('Заполните, пожалуйста, все поля формы.', 'err');
       return;
     }
-    if (!consent) {
+    if (!form.elements.consent.checked) {
       show('Для отправки обращения необходимо согласие на обработку персональных данных.', 'err');
       return;
     }
 
-    var subject = 'Обращение с сайта — ' + name;
-    var body = 'Имя: ' + name + '\n' +
-               'Контакт для связи: ' + contact + '\n\n' +
-               'Сообщение:\n' + text + '\n';
-    window.location.href = 'mailto:' + email +
-      '?subject=' + encodeURIComponent(subject) +
-      '&body=' + encodeURIComponent(body);
-    show('Открывается ваша почтовая программа с подготовленным письмом. Отправьте его, чтобы мы получили обращение. Если программа не открылась, напишите нам на ' + email + '.', 'ok');
+    btn.disabled = true;
+    show('Отправляем…', '');
+    fetch('https://api.web3forms.com/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({
+        access_key: key,
+        subject: 'Обращение с сайта ООО «Альбектус» — ' + name,
+        from_name: 'Сайт ООО «Альбектус»',
+        'Имя': name,
+        'Контакт для связи': contact,
+        'Сообщение': text,
+        'Согласие на обработку ПДн': 'дано',
+        botcheck: form.elements.botcheck.checked
+      })
+    })
+      .then(function (r) { return r.json().catch(function () { return {}; }); })
+      .then(function (data) {
+        if (data && data.success) {
+          form.reset();
+          show('Спасибо! Обращение отправлено, мы свяжемся с вами.', 'ok');
+        } else {
+          show('Не удалось отправить обращение. Попробуйте ещё раз немного позже.', 'err');
+        }
+      })
+      .catch(function () {
+        show('Не удалось отправить обращение: проверьте подключение к интернету и попробуйте ещё раз.', 'err');
+      })
+      .then(function () { btn.disabled = false; });
   });
 })();

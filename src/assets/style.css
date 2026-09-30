@@ -168,3 +168,4 @@ p { margin: 0 0 1em; }
   .actions .btn { flex: 1 1 100%; text-align: center; }
 }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }

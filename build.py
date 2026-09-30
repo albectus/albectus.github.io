@@ -80,14 +80,10 @@ def main():
     rel = u.path if u.path.endswith("/") else u.path + "/"
     site_host = (u.netloc + u.path).rstrip("/")
 
-    email = (c.get("email") or "").strip()
-    phone = (c.get("phone") or "").strip()
-    phone_link = "tel:" + re.sub(r"[^\d+]", "", phone) if phone else None
+    form_key = (cfg.get("web3forms_access_key") or "").strip()
 
     jsonld = {"@context": "https://schema.org", "@type": "Organization",
               "name": c["name"], "legalName": c.get("full_name") or c["name"], "url": base_url}
-    if email: jsonld["email"] = email
-    if phone: jsonld["telephone"] = phone
     if c.get("inn"): jsonld["taxID"] = c["inn"]
     if c.get("address"): jsonld["address"] = c["address"]
 
@@ -98,12 +94,10 @@ def main():
         "ogrn_html": val_html(c.get("ogrn")),
         "kpp_html": val_html(c.get("kpp")),
         "address_html": val_html(c.get("address")),
-        "email_html": val_html(email, "mailto:" + email if email else None),
-        "phone_html": val_html(phone, phone_link),
-        "email": esc(email),
-        "form_disabled": "" if email else " disabled",
-        "form_hint": ("После нажатия кнопки откроется ваша почтовая программа с подготовленным письмом. Данные не сохраняются на сайте."
-                      if email else "Приём обращений через форму будет доступен в ближайшее время."),
+        "form_key": esc(form_key),
+        "form_disabled": "" if form_key else " disabled",
+        "form_hint": ("Обращение будет доставлено нам, ответим по указанным вами контактам."
+                      if form_key else "Приём обращений через форму будет доступен в ближайшее время."),
         "hosting": esc(cfg.get("hosting", "")),
         "policy_date": esc(cfg.get("policy_date", "")),
         "site_host": esc(site_host),
@@ -143,7 +137,7 @@ def main():
         (DIST / "CNAME").write_text(cfg["custom_domain"].strip() + "\n", encoding="utf-8")
     (DIST / ".nojekyll").write_text("", encoding="utf-8")
 
-    missing = [k for k in ("inn", "ogrn", "address", "email", "phone") if not c.get(k)]
+    missing = [k for k in ("inn", "ogrn", "address") if not c.get(k)] + ([] if form_key else ["web3forms_access_key"])
     print(f"Собрано в {DIST} для {base_url}")
     if missing:
         print("Не заполнено в site.config.json:", ", ".join(missing))
